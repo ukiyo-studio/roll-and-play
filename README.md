@@ -14,6 +14,7 @@ Minimal single-user board game picker built with:
 - Edit game name
 - Delete game
 - Random game picker with `Prefer unplayed`
+- Tier list builder at `/tiers` with drag/drop across S/A/B/C/D and Unranked
 
 ## Data Model
 
