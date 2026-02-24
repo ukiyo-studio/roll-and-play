@@ -5,8 +5,8 @@ import {
   markAsPlayedAction,
   pickRandomGameAction,
   renameGameAction,
-  togglePlayedAction,
 } from "./actions";
+import { PlayedToggle } from "./played-toggle";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -60,24 +60,14 @@ export default async function Home({
         <h2 className="mb-3 text-lg font-semibold">Game List</h2>
 
         {games.length === 0 ? (
-          <p className="text-sm text-gray-600">No games yet.</p>
+          <p className="text-sm text-gray-600">🎲 No games yet. Start building your collection above.</p>
         ) : (
           <ul className="space-y-3">
             {games.map((game) => (
               <li key={game.id} className="rounded border p-3">
                 <p className="mb-2 font-medium">{game.name}</p>
                 <div className="flex flex-col gap-2">
-                  <form action={togglePlayedAction} className="flex items-center gap-2">
-                    <input type="hidden" name="id" value={game.id} />
-                    <input type="hidden" name="played" value={game.played ? "false" : "true"} />
-                    <label className="flex items-center gap-2 text-sm">
-                      <input type="checkbox" checked={game.played} readOnly />
-                      Played
-                    </label>
-                    <button type="submit" className="rounded border px-3 py-1 text-sm">
-                      Toggle
-                    </button>
-                  </form>
+                  <PlayedToggle id={game.id} played={game.played} />
 
                   <form action={renameGameAction} className="flex flex-col gap-2 sm:flex-row">
                     <input type="hidden" name="id" value={game.id} />
@@ -124,9 +114,9 @@ export default async function Home({
 
         {pickerNote ? <p className="mb-2 text-sm text-amber-700">{pickerNote}</p> : null}
 
-        <div className="rounded border p-3">
-          <p className="text-sm text-gray-600">Selected game</p>
-          <p className="text-lg font-semibold">{pickedGame ? pickedGame.name : "—"}</p>
+        <div className="rounded border p-4 text-center">
+          <p className="text-sm text-gray-600">🎉 Tonight’s Game</p>
+          <p className="text-2xl font-bold">{pickedGame ? pickedGame.name : "—"}</p>
         </div>
 
         <div className="mt-3 flex flex-col gap-2 sm:flex-row">
