@@ -169,7 +169,7 @@ export async function deleteGameAction(formData: FormData): Promise<void> {
 }
 
 export async function pickRandomGameAction(formData: FormData): Promise<void> {
-  const preferUnplayed = String(formData.get("preferUnplayed")) === "on";
+  const preferUnplayed = String(formData.get("preferUnplayed")) === "1";
   const picked = await pickRandomGame(preferUnplayed);
 
   revalidatePath("/");
