@@ -71,14 +71,7 @@ export default async function Home({
                     <input type="hidden" name="id" value={game.id} />
                     <input type="hidden" name="played" value={game.played ? "false" : "true"} />
                     <label className="flex items-center gap-2 text-sm">
-                      <input
-                        type="checkbox"
-                        checked={game.played}
-                        onChange={() => {
-                          /* server action form submit button handles update */
-                        }}
-                        readOnly
-                      />
+                      <input type="checkbox" checked={game.played} readOnly />
                       Played
                     </label>
                     <button type="submit" className="rounded border px-3 py-1 text-sm">

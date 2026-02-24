@@ -4,7 +4,7 @@ Minimal single-user board game picker built with:
 - Next.js (App Router)
 - TypeScript (strict mode)
 - Prisma ORM
-- SQLite (`./prisma/dev.db`)
+- SQLite (`prisma/dev.db`, via `DATABASE_URL="file:./dev.db"` in Prisma schema context)
 
 ## Features
 
