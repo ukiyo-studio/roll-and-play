@@ -12,5 +12,6 @@ model Game {
   name      String   @unique
   played    Boolean  @default(false)
   tier      String?
+  tierOrder Int?
   createdAt DateTime @default(now())
 }

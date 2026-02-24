@@ -8,8 +8,12 @@ type GameRecord = {
   id: number;
   name: string;
   played: boolean;
+  tier: string | null;
+  tierOrder: number | null;
   createdAt: Date;
 };
+
+type PickerMode = "any" | "top" | "sa" | "weighted";
 
 function isUniqueConstraintError(error: unknown): boolean {
   if (typeof error !== "object" || error === null || !("code" in error)) {
@@ -18,6 +22,36 @@ function isUniqueConstraintError(error: unknown): boolean {
 
   const code = (error as { code?: unknown }).code;
   return typeof code === "string" && code === "P2002";
+}
+
+function getRandomFrom(games: GameRecord[]): GameRecord | null {
+  if (games.length === 0) return null;
+  const index = Math.floor(Math.random() * games.length);
+  return games[index] ?? null;
+}
+
+function pickWeighted(games: GameRecord[]): GameRecord | null {
+  if (games.length === 0) return null;
+
+  const weightForTier = (tier: string | null): number => {
+    if (tier === "S") return 5;
+    if (tier === "A") return 4;
+    if (tier === "B") return 3;
+    if (tier === "C") return 2;
+    if (tier === "D") return 1;
+    return 2;
+  };
+
+  const weighted = games.map((game) => ({ game, weight: weightForTier(game.tier) }));
+  const totalWeight = weighted.reduce((sum, item) => sum + item.weight, 0);
+
+  let roll = Math.random() * totalWeight;
+  for (const item of weighted) {
+    roll -= item.weight;
+    if (roll <= 0) return item.game;
+  }
+
+  return weighted[weighted.length - 1]?.game ?? null;
 }
 
 export async function createGame(name: string): Promise<{ ok: true } | { ok: false; error: string }> {
@@ -94,24 +128,48 @@ export async function getAllGames(): Promise<GameRecord[]> {
   });
 }
 
-export async function pickRandomGame(preferUnplayed: boolean) {
+export async function pickRandomGame(preferUnplayed: boolean, mode: PickerMode) {
   const allGames: GameRecord[] = await prisma.game.findMany({
     orderBy: { createdAt: "desc" },
   });
 
   if (allGames.length === 0) {
-    return { game: null, usedFallback: false };
+    return { game: null, usedFallback: false, note: null as string | null };
   }
 
-  const unplayedGames = allGames.filter((game) => !game.played);
+  const basePool = preferUnplayed ? allGames.filter((game) => !game.played) : allGames;
+  const pool = basePool.length > 0 ? basePool : allGames;
+  const usedFallback = preferUnplayed && basePool.length === 0;
 
-  const sourceGames =
-    preferUnplayed && unplayedGames.length > 0 ? unplayedGames : allGames;
+  let note: string | null = null;
+  let picked: GameRecord | null = null;
 
-  const usedFallback = preferUnplayed && unplayedGames.length === 0;
-  const index = Math.floor(Math.random() * sourceGames.length);
+  if (mode === "top") {
+    const sOnly = pool.filter((game) => game.tier === "S");
+    if (sOnly.length === 0) {
+      note = "No S-tier games yet.";
+      return { game: null, usedFallback, note };
+    }
+    picked = getRandomFrom(sOnly);
+  } else if (mode === "sa") {
+    const sa = pool.filter((game) => game.tier === "S" || game.tier === "A");
+    if (sa.length === 0) {
+      note = "No S/A games yet. Picking from all games.";
+      picked = getRandomFrom(pool);
+    } else {
+      picked = getRandomFrom(sa);
+    }
+  } else if (mode === "weighted") {
+    picked = pickWeighted(pool);
+  } else {
+    picked = getRandomFrom(pool);
+  }
 
-  return { game: sourceGames[index], usedFallback };
+  if (usedFallback) {
+    note = "No unplayed games left. Picking from all games.";
+  }
+
+  return { game: picked, usedFallback, note };
 }
 
 export async function addGameAction(formData: FormData): Promise<void> {
@@ -170,31 +228,39 @@ export async function deleteGameAction(formData: FormData): Promise<void> {
 
 export async function pickRandomGameAction(formData: FormData): Promise<void> {
   const preferUnplayed = String(formData.get("preferUnplayed")) === "1";
-  const picked = await pickRandomGame(preferUnplayed);
+  const rawMode = String(formData.get("pickerMode") ?? "any");
+  const mode: PickerMode =
+    rawMode === "top" || rawMode === "sa" || rawMode === "weighted" ? rawMode : "any";
+
+  const picked = await pickRandomGame(preferUnplayed, mode);
 
   revalidatePath("/");
 
-  if (!picked.game) {
-    redirect(`/?preferUnplayed=${preferUnplayed ? "1" : "0"}`);
-  }
-
   const params = new URLSearchParams();
-  params.set("pickedId", String(picked.game.id));
   params.set("preferUnplayed", preferUnplayed ? "1" : "0");
+  params.set("pickerMode", mode);
 
-  if (picked.usedFallback) {
-    params.set("pickerNote", "No unplayed games left. Picking from all games.");
+  if (picked.note) {
+    params.set("pickerNote", picked.note);
   }
 
+  if (!picked.game) {
+    redirect(`/?${params.toString()}`);
+  }
+
+  params.set("pickedId", String(picked.game.id));
   redirect(`/?${params.toString()}`);
 }
 
 export async function markAsPlayedAction(formData: FormData): Promise<void> {
   const id = Number(formData.get("id"));
   const preferUnplayed = String(formData.get("preferUnplayed")) === "1";
+  const rawMode = String(formData.get("pickerMode") ?? "any");
+  const mode: PickerMode =
+    rawMode === "top" || rawMode === "sa" || rawMode === "weighted" ? rawMode : "any";
 
   await updateGame(id, { played: true });
   revalidatePath("/");
 
-  redirect(`/?preferUnplayed=${preferUnplayed ? "1" : "0"}`);
+  redirect(`/?preferUnplayed=${preferUnplayed ? "1" : "0"}&pickerMode=${mode}`);
 }

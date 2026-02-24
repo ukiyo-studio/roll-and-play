@@ -34,6 +34,7 @@ export default async function Home({
   const pickerNote = readParam(params, "pickerNote");
 
   const preferUnplayed = readParam(params, "preferUnplayed") === "1";
+  const pickerMode = readParam(params, "pickerMode") ?? "any";
   const pickedId = Number(readParam(params, "pickedId") ?? "0");
   const pickedGame = games.find((game) => game.id === pickedId) ?? null;
 
@@ -57,6 +58,17 @@ export default async function Home({
             </label>
           </div>
 
+          <select
+            name="pickerMode"
+            defaultValue={pickerMode}
+            className="rounded-xl border border-[#d7c5ad] bg-[#fff9f1] px-3 py-2 text-sm text-[#3b2b1d]"
+          >
+            <option value="any">🎲 Any Game</option>
+            <option value="top">🏆 Top Tier Only</option>
+            <option value="sa">⭐ S + A Only</option>
+            <option value="weighted">🎯 Weighted by Tier</option>
+          </select>
+
           <button
             type="submit"
             disabled={games.length === 0}
@@ -79,6 +91,7 @@ export default async function Home({
           <form action={markAsPlayedAction}>
             <input type="hidden" name="id" value={pickedGame?.id ?? ""} />
             <input type="hidden" name="preferUnplayed" value={preferUnplayed ? "1" : "0"} />
+            <input type="hidden" name="pickerMode" value={pickerMode} />
             <button
               type="submit"
               disabled={!pickedGame}
@@ -90,6 +103,7 @@ export default async function Home({
 
           <form action={pickRandomGameAction}>
             <input type="hidden" name="preferUnplayed" value={preferUnplayed ? "1" : "0"} />
+            <input type="hidden" name="pickerMode" value={pickerMode} />
             <button
               type="submit"
               disabled={games.length === 0}
