@@ -44,6 +44,63 @@ export default async function Home({
         <p className="mt-2 text-[#6e5a45]">Game night at the table, one roll away.</p>
       </section>
 
+      <section className="rounded-2xl border border-[#d7c5ad] bg-[#f6f1e9] p-6 text-center shadow-md">
+        <h2 className="mb-5 text-2xl font-black text-[#3b2b1d]">🎲 What Are We Playing Tonight?</h2>
+
+        <form action={pickRandomGameAction} className="mx-auto mb-5 flex max-w-xl flex-col items-center gap-4">
+          <div className="flex gap-6 text-sm text-[#3b2b1d]">
+            <label className="flex items-center gap-2">
+              <input type="radio" name="preferUnplayed" value="1" defaultChecked={preferUnplayed} /> Prefer unplayed
+            </label>
+            <label className="flex items-center gap-2">
+              <input type="radio" name="preferUnplayed" value="0" defaultChecked={!preferUnplayed} /> Any game
+            </label>
+          </div>
+
+          <button
+            type="submit"
+            disabled={games.length === 0}
+            className="flex h-28 w-28 items-center justify-center rounded-full bg-[#f2c14e] text-4xl shadow-md transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            🎲
+          </button>
+          <span className="text-sm font-semibold text-[#6e5a45]">Roll for Tonight</span>
+        </form>
+
+        {games.length === 0 ? <p className="text-sm text-[#6e5a45]">Add some games first.</p> : null}
+        {pickerNote ? <p className="mb-3 text-sm text-[#6e5a45]">{pickerNote}</p> : null}
+
+        <RandomReveal
+          gameNames={games.map((game) => game.name)}
+          selectedName={pickedGame ? pickedGame.name : null}
+        />
+
+        <div className="mt-4 flex flex-col justify-center gap-2 sm:flex-row">
+          <form action={markAsPlayedAction}>
+            <input type="hidden" name="id" value={pickedGame?.id ?? ""} />
+            <input type="hidden" name="preferUnplayed" value={preferUnplayed ? "1" : "0"} />
+            <button
+              type="submit"
+              disabled={!pickedGame}
+              className="rounded-xl bg-[#4caf50] px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Mark as Played
+            </button>
+          </form>
+
+          <form action={pickRandomGameAction}>
+            <input type="hidden" name="preferUnplayed" value={preferUnplayed ? "1" : "0"} />
+            <button
+              type="submit"
+              disabled={games.length === 0}
+              className="rounded-xl bg-[#3a7ca5] px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Pick Again
+            </button>
+          </form>
+        </div>
+      </section>
+
       <section className="rounded-2xl border border-[#d7c5ad] bg-[#f6f1e9] p-5 shadow-md">
         <h2 className="mb-3 text-xl font-bold text-[#3b2b1d]">📦 Add a Game to Your Shelf</h2>
         <form action={addGameAction} className="flex flex-col gap-3 sm:flex-row">
@@ -128,63 +185,6 @@ export default async function Home({
         )}
 
         {listError ? <p className="mt-3 text-sm text-[#d64045]">{listError}</p> : null}
-      </section>
-
-      <section className="rounded-2xl border border-[#d7c5ad] bg-[#f6f1e9] p-6 text-center shadow-md">
-        <h2 className="mb-5 text-2xl font-black text-[#3b2b1d]">🎲 What Are We Playing Tonight?</h2>
-
-        <form action={pickRandomGameAction} className="mx-auto mb-5 flex max-w-xl flex-col items-center gap-4">
-          <div className="flex gap-6 text-sm text-[#3b2b1d]">
-            <label className="flex items-center gap-2">
-              <input type="radio" name="preferUnplayed" value="1" defaultChecked={preferUnplayed} /> Prefer unplayed
-            </label>
-            <label className="flex items-center gap-2">
-              <input type="radio" name="preferUnplayed" value="0" defaultChecked={!preferUnplayed} /> Any game
-            </label>
-          </div>
-
-          <button
-            type="submit"
-            disabled={games.length === 0}
-            className="flex h-28 w-28 items-center justify-center rounded-full bg-[#f2c14e] text-4xl shadow-md transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            🎲
-          </button>
-          <span className="text-sm font-semibold text-[#6e5a45]">Roll for Tonight</span>
-        </form>
-
-        {games.length === 0 ? <p className="text-sm text-[#6e5a45]">Add some games first.</p> : null}
-        {pickerNote ? <p className="mb-3 text-sm text-[#6e5a45]">{pickerNote}</p> : null}
-
-        <RandomReveal
-          gameNames={games.map((game) => game.name)}
-          selectedName={pickedGame ? pickedGame.name : null}
-        />
-
-        <div className="mt-4 flex flex-col justify-center gap-2 sm:flex-row">
-          <form action={markAsPlayedAction}>
-            <input type="hidden" name="id" value={pickedGame?.id ?? ""} />
-            <input type="hidden" name="preferUnplayed" value={preferUnplayed ? "1" : "0"} />
-            <button
-              type="submit"
-              disabled={!pickedGame}
-              className="rounded-xl bg-[#4caf50] px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              Mark as Played
-            </button>
-          </form>
-
-          <form action={pickRandomGameAction}>
-            <input type="hidden" name="preferUnplayed" value={preferUnplayed ? "1" : "0"} />
-            <button
-              type="submit"
-              disabled={games.length === 0}
-              className="rounded-xl bg-[#3a7ca5] px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              Pick Again
-            </button>
-          </form>
-        </div>
       </section>
     </main>
   );
