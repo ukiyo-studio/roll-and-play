@@ -80,7 +80,15 @@ export async function throttledFetch(url: string, init?: RequestInit): Promise<R
   }
 
   lastRequestAt = Date.now();
-  return fetch(url, init);
+
+  const headers = new Headers(init?.headers);
+  headers.set("User-Agent", "RollAndPlay/1.0 (+https://github.com/ukiyo-studio/roll-and-play)");
+  headers.set("Accept", "application/xml,text/xml;q=0.9,*/*;q=0.8");
+
+  return fetch(url, {
+    ...init,
+    headers,
+  });
 }
 
 async function fetchWithRetry(url: string, retries = 5): Promise<Response> {
@@ -129,6 +137,9 @@ export async function fetchCollection(username: string): Promise<number[]> {
     }
 
     if (!response.ok) {
+      if (response.status === 401 || response.status === 403) {
+        throw new Error("BGG API request was denied. Please try again later.");
+      }
       if (response.status === 404) {
         throw new Error("BGG user not found.");
       }
@@ -160,6 +171,9 @@ export async function fetchThings(ids: number[]): Promise<BggThing[]> {
   const response = await fetchWithRetry(url);
 
   if (!response.ok) {
+    if (response.status === 401 || response.status === 403) {
+      throw new Error("BGG API request was denied while fetching game details.");
+    }
     throw new Error("Could not fetch BGG game details.");
   }
 
