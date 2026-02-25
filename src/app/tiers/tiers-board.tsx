@@ -8,7 +8,7 @@ import {
   useDraggable,
   useDroppable,
 } from "@dnd-kit/core";
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 
 type Game = {
   id: number;
@@ -173,13 +173,29 @@ function applyTierOrders(grouped: Record<TierKey, Game[]>): Game[] {
 }
 
 export function TiersBoard({ initialGames }: { initialGames: Game[] }) {
+  const [mounted, setMounted] = useState(false);
   const [games, setGames] = useState<Game[]>(initialGames);
   const [activeGame, setActiveGame] = useState<Game | null>(null);
   const [activeTier, setActiveTier] = useState<TierKey | null>(null);
   const [flashTier, setFlashTier] = useState<TierKey | null>(null);
   const [, startTransition] = useTransition();
 
+  useEffect(() => {
+    const timer = window.setTimeout(() => setMounted(true), 0);
+    return () => window.clearTimeout(timer);
+  }, []);
+
   const grouped = useMemo(() => mapGames(games), [games]);
+
+  if (!mounted) {
+    return (
+      <div className="space-y-4">
+        {TIERS.map((tier) => (
+          <DropRow key={tier.key} tier={tier} games={grouped[tier.key]} activeTier={null} bounce={false} />
+        ))}
+      </div>
+    );
+  }
 
   function onDragStart(event: DragStartEvent): void {
     const game = event.active.data.current as Game | undefined;
