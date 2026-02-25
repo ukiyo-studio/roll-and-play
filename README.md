@@ -15,6 +15,7 @@ Minimal single-user board game picker built with:
 - Delete game
 - Random game picker with `Prefer unplayed`
 - Tier list builder at `/tiers` with drag/drop across S/A/B/C/D and Unranked
+- BoardGameGeek import at `/import` (one-way owned collection import)
 
 ## Data Model
 
@@ -22,6 +23,14 @@ Minimal single-user board game picker built with:
 - `id` (`Int`, primary key, autoincrement)
 - `name` (`String`, unique)
 - `played` (`Boolean`, default `false`)
+- `tier` (`String?`)
+- `tierOrder` (`Int?`)
+- `bggId` (`Int?`, unique)
+- `yearPublished` (`Int?`)
+- `minPlayers` (`Int?`)
+- `maxPlayers` (`Int?`)
+- `playingTime` (`Int?`)
+- `thumbnailUrl` (`String?`)
 - `createdAt` (`DateTime`, default `now()`)
 
 ## Setup

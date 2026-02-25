@@ -17,6 +17,7 @@ export function Nav() {
       <div className="mx-auto flex w-full max-w-5xl items-center gap-2 px-4 py-3 md:px-8">
         <Link href="/" className={navClass(pathname === "/")}>🎲 Roll &amp; Play</Link>
         <Link href="/tiers" className={navClass(pathname === "/tiers")}>🏆 Tier List</Link>
+        <Link href="/import" className={navClass(pathname === "/import")}>🌍 Import</Link>
       </div>
     </nav>
   );

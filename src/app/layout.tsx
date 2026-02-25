@@ -28,6 +28,12 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Nav />
         {children}
+        <footer className="border-t border-[#d7c5ad] bg-[#e8d8c3] px-4 py-3 text-center text-xs text-[#6e5a45]">
+          Data powered by{" "}
+          <a href="https://boardgamegeek.com" target="_blank" rel="noreferrer" className="underline">
+            BoardGameGeek
+          </a>
+        </footer>
       </body>
     </html>
   );

@@ -8,10 +8,16 @@ datasource db {
 }
 
 model Game {
-  id        Int      @id @default(autoincrement())
-  name      String   @unique
-  played    Boolean  @default(false)
-  tier      String?
-  tierOrder Int?
-  createdAt DateTime @default(now())
+  id            Int      @id @default(autoincrement())
+  name          String   @unique
+  played        Boolean  @default(false)
+  tier          String?
+  tierOrder     Int?
+  bggId         Int?     @unique
+  yearPublished Int?
+  minPlayers    Int?
+  maxPlayers    Int?
+  playingTime   Int?
+  thumbnailUrl  String?
+  createdAt     DateTime @default(now())
 }

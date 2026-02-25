@@ -10,6 +10,12 @@ type GameRecord = {
   played: boolean;
   tier: string | null;
   tierOrder: number | null;
+  bggId: number | null;
+  yearPublished: number | null;
+  minPlayers: number | null;
+  maxPlayers: number | null;
+  playingTime: number | null;
+  thumbnailUrl: string | null;
   createdAt: Date;
 };
 

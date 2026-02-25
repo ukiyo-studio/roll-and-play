@@ -150,6 +150,13 @@ export default async function Home({
               >
                 <p className="text-lg font-bold text-[#3b2b1d]">{game.name}</p>
 
+                {game.minPlayers !== null && game.maxPlayers !== null ? (
+                  <p className="mt-1 text-sm text-[#6e5a45]">👥 {game.minPlayers}–{game.maxPlayers} players</p>
+                ) : null}
+                {game.playingTime !== null ? (
+                  <p className="text-sm text-[#6e5a45]">⏱ {game.playingTime} min</p>
+                ) : null}
+
                 <div className="mt-3 flex items-center justify-between">
                   <PlayedToggle id={game.id} played={game.played} />
                   <span
